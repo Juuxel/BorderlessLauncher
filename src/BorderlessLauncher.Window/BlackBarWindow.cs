@@ -28,7 +28,7 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
         {
             windowHandle = Start();
             evt.Set();
-            MessageLoop();
+            if (windowHandle != null) MessageLoop();
         });
         thread.Start();
         evt.WaitOne();
