@@ -65,6 +65,8 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     printfn "Target pos (%d, %d), size: %A" targetX targetY targetSize
 #endif
 
+    let mutable bbWindowOpt: BlackBarWindow option = None
+
     if keepAspectRatio && blackBars && targetSize <> monitorSize then
         let bbWindow = BlackBarWindow(
             owner = typeof<Size>.Module,
@@ -76,6 +78,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         )
         let bbHandle = bbWindow.StartOffThread()
         if bbHandle.HasValue then
+            bbWindowOpt <- Some bbWindow
             BorderlessWindows.SetBorderless(
                 bbHandle.Value,
                 System.Nullable(),
@@ -85,3 +88,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
                 viewportRect.Height)
 
     BorderlessWindows.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
+
+    if bbWindowOpt.IsSome then
+        proc.WaitForExit()
+        bbWindowOpt.Value.Destroy()

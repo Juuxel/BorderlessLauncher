@@ -35,7 +35,12 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
         return windowHandle;
     }
 
-    public IntPtr? Start()
+    public void Destroy()
+    {
+        PInvoke.PostMessage((HWND) windowHandle!, PInvoke.WM_CLOSE, (WPARAM) 0u, (LPARAM) 0);
+    }
+
+    private IntPtr? Start()
     {
         var hInstance = new HINSTANCE(System.Runtime.InteropServices.Marshal.GetHINSTANCE(owner));
         RegisterClass(hInstance, new WNDPROC(WindowProcedure));
@@ -45,7 +50,7 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
         return hWnd;
     }
 
-    public void MessageLoop()
+    private void MessageLoop()
     {
         unsafe
         {
