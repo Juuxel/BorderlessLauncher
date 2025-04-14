@@ -50,5 +50,10 @@ public static class WindowUtil
         }
     }
 
+    public static void ShowErrorMessageBox(string text, string? title)
+    {
+        PInvoke.MessageBox(HWND.Null, text, title, MESSAGEBOX_STYLE.MB_ICONERROR | MESSAGEBOX_STYLE.MB_OK);
+    }
+
     public record MonitorInfo(Rect Monitor, Rect WorkArea);
 }

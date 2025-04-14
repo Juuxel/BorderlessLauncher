@@ -27,3 +27,6 @@ SetWindowPos
 SetWindowLongPtr
 HWND_TOP
 SetForegroundWindow
+
+// Other native methods
+MessageBox

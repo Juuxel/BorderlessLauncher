@@ -28,7 +28,13 @@ type Rect with
 let createOrAttach (processName: string) (args: string list) attach =
     if attach then
         let processName = System.IO.Path.GetFileNameWithoutExtension processName
-        Process.GetProcessesByName processName |> Array.head
+        let processes = Process.GetProcessesByName processName
+        match Array.tryHead processes with
+        | Some proc -> proc
+        | None ->
+            let message = $"Could not find a process with name {processName}."
+            WindowUtil.ShowErrorMessageBox(message, null)
+            failwith message
     else
         let startInfo = new ProcessStartInfo(processName, args)
         startInfo.WorkingDirectory <- System.Environment.CurrentDirectory

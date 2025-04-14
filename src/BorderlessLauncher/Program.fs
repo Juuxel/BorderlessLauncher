@@ -5,6 +5,7 @@
 module BorderlessLauncher.Main
 
 open Argu
+open BorderlessLauncher.Window
 
 type Arguments =
     | [<MainCommand; ExactlyOnce; Last>] Process of args: string list
@@ -24,9 +25,17 @@ type Arguments =
             | Letterboxing -> "if the process cannot be fullscreened, create a black bar window behind it (in conjunction with -a)"
             | Attach -> "attach onto an existing process; the process arguments will be ignored"
 
+type Exiter() =
+    interface IExiter with
+        member _.Name = "Exiter"
+        member _.Exit(msg, errorCode) =
+            eprintfn "%s" msg
+            WindowUtil.ShowErrorMessageBox(msg, null)
+            exit (int errorCode)
+
 [<EntryPoint>]
 let main argv =
-    let parser = ArgumentParser.Create<Arguments>(programName = "borderlesslauncher.exe", errorHandler = ProcessExiter())
+    let parser = ArgumentParser.Create<Arguments>(programName = "borderlesslauncher.exe", errorHandler = Exiter())
     let parseResults = parser.ParseCommandLine argv
     let args = parseResults.GetResult Process
     let timeout = parseResults.TryGetResult Timeout
