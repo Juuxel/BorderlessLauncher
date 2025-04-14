@@ -30,7 +30,7 @@ public static class BorderlessWindows
     public static void SetBorderless(IntPtr window, IntPtr? nextWindow, int x, int y, int width, int height)
     {
         HWND hWnd = (HWND) window;
-        HWND hInsertAfter = nextWindow.HasValue ? (HWND) nextWindow.Value : HWND.HWND_TOPMOST;
+        HWND hInsertAfter = nextWindow.HasValue ? (HWND) nextWindow.Value : HWND.HWND_TOP;
         PInvoke.SetWindowPos(hWnd, hInsertAfter, x, y, width, height, SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED);
         PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE, (int) BorderlessStyle);
     }
