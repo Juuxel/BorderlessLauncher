@@ -25,8 +25,17 @@ type Rect with
         { Width = rect.Width
           Height = rect.Height }
 
-let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) (blackBars: bool) =
-    use proc = Process.Start(processName, args)
+let createOrAttach (processName: string) (args: string list) attach =
+    if attach then
+        let processName = System.IO.Path.GetFileNameWithoutExtension processName
+        Process.GetProcessesByName processName |> Array.head
+    else
+        let startInfo = new ProcessStartInfo(processName, args)
+        startInfo.WorkingDirectory <- System.Environment.CurrentDirectory
+        Process.Start startInfo |> nonNull
+
+let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) (blackBars: bool) (attach: bool) =
+    use proc = createOrAttach processName args attach
     proc.WaitForInputIdle() |> ignore
     if timeout.IsSome then
         System.Threading.Thread.Sleep timeout.Value

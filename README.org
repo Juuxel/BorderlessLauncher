@@ -19,6 +19,8 @@ Options:
   (in which case, Windows will automatically hide it).
 - ~-b~, ~--letterboxing~: If ~-a~ is specified, creates a black bar/letterboxing window behind the original window.
 - ~-t <delay>~: Waits ~<delay>~ milliseconds after the original window has been created until resizing it.
+- ~-c~, ~--attach~: Attaches to an existing process instead of creating a new one. Only the file name of the first arg
+  will be considered, and the rest of the arguments will be ignored.
 
 ** Build instructions
 

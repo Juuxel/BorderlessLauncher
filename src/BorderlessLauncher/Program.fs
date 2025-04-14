@@ -12,6 +12,7 @@ type Arguments =
     | [<AltCommandLine("-a")>] Keep_Aspect_Ratio
     | [<AltCommandLine("-d")>] Dodge_Taskbar
     | [<AltCommandLine("-b")>] Letterboxing
+    | [<AltCommandLine("-c")>] Attach
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -21,6 +22,7 @@ type Arguments =
             | Keep_Aspect_Ratio -> "retain the aspect ratio of the original window"
             | Dodge_Taskbar -> "if the process cannot be fullscreened, also avoids placing it on top of the taskbar (in conjunction with -a)"
             | Letterboxing -> "if the process cannot be fullscreened, create a black bar window behind it (in conjunction with -a)"
+            | Attach -> "attach onto an existing process; the process arguments will be ignored"
 
 [<EntryPoint>]
 let main argv =
@@ -31,5 +33,6 @@ let main argv =
     let keepAspectRatio = parseResults.Contains Keep_Aspect_Ratio
     let dodgeTaskbar = parseResults.Contains Dodge_Taskbar
     let blackBars = parseResults.Contains Letterboxing
-    Launcher.launch (List.head args) (List.tail args) timeout keepAspectRatio dodgeTaskbar blackBars
+    let attach = parseResults.Contains Attach
+    Launcher.launch (List.head args) (List.tail args) timeout keepAspectRatio dodgeTaskbar blackBars attach
     0
