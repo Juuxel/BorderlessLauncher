@@ -6,7 +6,6 @@ module BorderlessLauncher.Launcher
 
 open BorderlessLauncher.Window
 open System.Diagnostics
-open System.Runtime.InteropServices
 
 type Size =
     { Width: int
@@ -17,88 +16,14 @@ type Size =
     member self.HasSameAspectRatio other =
         self.CrossMultiply other = 0
 
-[<Struct>]
-[<StructLayout(LayoutKind.Sequential)>]
-type Rect =
-    { mutable Left: int
-      mutable Top: int
-      mutable Right: int
-      mutable Bottom: int }
-    static member Zero() = { Left = 0; Top = 0; Right = 0; Bottom = 0 }
-    member self.Width = self.Right - self.Left
-    member self.Height = self.Bottom - self.Top
-    member self.Size = { Width = self.Width; Height = self.Height }
+type Rect with
+    member rect.Width = rect.Right - rect.Left
 
-module private Native =
-    [<System.Flags>]
-    type SwpFlags =
-        | SWP_FRAMECHANGED = 0x0020u
-        | SWP_NOOWNERZORDER = 0x0200u
-        | SWP_NOZORDER = 0x0004u
+    member rect.Height = rect.Bottom - rect.Top
 
-    let SWP_DEFAULT = SwpFlags.SWP_FRAMECHANGED ||| SwpFlags.SWP_NOOWNERZORDER ||| SwpFlags.SWP_NOZORDER
-
-    [<System.Flags>]
-    type WsFlags =
-        | WS_VISIBLE = 0x10000000L
-        | WS_CLIPCHILDREN = 0x02000000L
-
-    let WS_DEFAULT = WsFlags.WS_VISIBLE ||| WsFlags.WS_CLIPCHILDREN
-
-    // Native types
-    type HWND = nativeint
-    type HMONITOR = nativeint
-    type DWORD = uint
-
-    [<Struct>]
-    [<StructLayout(LayoutKind.Sequential)>]
-    type MonitorInfo =
-        { mutable CbSize: DWORD
-          mutable Monitor: Rect
-          mutable WorkArea: Rect
-          mutable Flags: DWORD }
-        static member Default() =
-            { CbSize = uint sizeof<MonitorInfo>
-              Monitor = Rect.Zero()
-              WorkArea = Rect.Zero()
-              Flags = 0u }
-
-    // Native constants
-    let HWND_TOPMOST: HWND = -1
-    let MONITOR_DEFAULTTOPRIMARY: DWORD = 1u
-    let GWL_STYLE = -16
-
-    [<DllImport("user32.dll")>]
-    extern HMONITOR MonitorFromWindow(HWND hWnd, DWORD dwFlags)
-
-    [<DllImport("user32.dll")>]
-    extern bool GetMonitorInfoW(HMONITOR hMonitor, [<Out>] MonitorInfo& lpmi)
-
-    [<DllImport("user32.dll")>]
-    extern bool GetWindowRect(HWND hWnd, [<Out>] Rect& rect)
-
-    [<DllImport("user32.dll")>]
-    extern bool SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags)
-
-    [<DllImport("user32.dll")>]
-    extern int64 SetWindowLongPtrW(HWND hWnd, int nIndex, int64 dwNewLong)
-
-let private getWindowRect handle =
-    let mutable rect = Rect.Zero()
-    let success = Native.GetWindowRect(handle, &rect)
-#if DEBUG
-    printfn "Window rect %A, success %b" rect success
-#endif
-    rect
-
-let private getMonitorInfo window =
-    let monitor = Native.MonitorFromWindow(window, Native.MONITOR_DEFAULTTOPRIMARY)
-    let mutable monitorInfo = Native.MonitorInfo.Default()
-    let success = Native.GetMonitorInfoW(monitor, &monitorInfo)
-#if DEBUG
-    printfn "Monitor %d, monitor info %A, success %b" monitor monitorInfo success
-#endif
-    monitorInfo
+    member rect.Size =
+        { Width = rect.Width
+          Height = rect.Height }
 
 let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) (blackBars: bool) =
     use proc = Process.Start(processName, args)
@@ -107,13 +32,13 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         System.Threading.Thread.Sleep timeout.Value
 
     let handle = proc.MainWindowHandle
-    let monitorInfo = getMonitorInfo handle
+    let monitorInfo = BorderlessWindows.GetMonitorInfo handle
     let monitorRect = monitorInfo.Monitor
     let monitorSize = monitorRect.Size
     let mutable viewportRect = monitorRect
     let targetSize =
         if keepAspectRatio then
-            let windowSize = getWindowRect handle |> _.Size
+            let windowSize = BorderlessWindows.GetWindowRect handle |> _.Size
             if windowSize.HasSameAspectRatio monitorSize then
                 monitorSize
             else
@@ -151,16 +76,12 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         )
         let bbHandle = bbWindow.StartOffThread()
         if bbHandle.HasValue then
-            Native.SetWindowPos(
+            BorderlessWindows.SetBorderless(
                 bbHandle.Value,
-                Native.HWND_TOPMOST,
+                System.Nullable(),
                 viewportRect.Left,
                 viewportRect.Top,
                 viewportRect.Width,
-                viewportRect.Height,
-                uint Native.SWP_DEFAULT)
-                |> ignore
-            Native.SetWindowLongPtrW(bbHandle.Value, Native.GWL_STYLE, int64 Native.WS_DEFAULT) |> ignore
+                viewportRect.Height)
 
-    Native.SetWindowPos(handle, Native.HWND_TOPMOST, targetX, targetY, targetSize.Width, targetSize.Height, uint Native.SWP_DEFAULT) |> ignore
-    Native.SetWindowLongPtrW(handle, Native.GWL_STYLE, int64 Native.WS_DEFAULT) |> ignore
+    BorderlessWindows.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)

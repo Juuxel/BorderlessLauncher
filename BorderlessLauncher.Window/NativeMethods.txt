@@ -14,3 +14,11 @@ DefWindowProc
 CW_USEDEFAULT
 WM_*
 CreateSolidBrush
+
+// Making windows borderless
+MonitorFromWindow
+GetMonitorInfo
+GetWindowRect
+SetWindowPos
+SetWindowLongPtr
+HWND_*
