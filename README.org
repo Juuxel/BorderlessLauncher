@@ -7,7 +7,7 @@ which can be useful for e.g. 4:3 games on 16:9 screens.
 ** Usage
 
 #+BEGIN_SRC cmd
-BorderlessLauncher.exe [-a] [-d] [-t <delay>] <args>...
+BorderlessLauncher.exe [-a] [-d] [-br] [-t <delay>] <args>...
 #+END_SRC
 
 The ~<args>...~ will be the program to launch and its command line arguments.
@@ -17,6 +17,7 @@ Options:
   There will be empty space around the window if the original window has a different aspect ratio.
 - ~-d~, ~--dodge-taskbar~: If ~-a~ is specified, will not overlap the taskbar unless the aspect ratio matches
   (in which case, Windows will automatically hide it).
+- ~-b~, ~~--letterboxing~~: If ~-a~ is specified, creates a black bar/letterboxing window behind the original window.
 - ~-t <delay>~: Waits ~<delay>~ milliseconds after the original window has been created until resizing it.
 
 ** Build instructions
