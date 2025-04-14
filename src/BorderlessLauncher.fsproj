@@ -11,4 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Argu" Version="6.2.5" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BorderlessLauncher.Window\BorderlessLauncher.Window.csproj" />
+  </ItemGroup>
 </Project>

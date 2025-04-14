@@ -1,0 +1,16 @@
+// Creating and drawing windows
+RegisterClass
+CreateWindowEx
+ShowWindow
+DestroyWindow
+GetMessage
+TranslateMessage
+DispatchMessage
+PostQuitMessage
+BeginPaint
+FillRect
+EndPaint
+DefWindowProc
+CW_USEDEFAULT
+WM_*
+CreateSolidBrush

@@ -7,4 +7,5 @@
   <Folder Name="/src/">
     <Project Path="src/BorderlessLauncher.fsproj" />
   </Folder>
+  <Project Path="BorderlessLauncher.Window/BorderlessLauncher.Window.csproj" />
 </Solution>

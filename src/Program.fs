@@ -11,6 +11,7 @@ type Arguments =
     | [<Unique; AltCommandLine("-t")>] Timeout of int
     | [<AltCommandLine("-a")>] Keep_Aspect_Ratio
     | [<AltCommandLine("-d")>] Dodge_Taskbar
+    | [<AltCommandLine("-b")>] Black_Bars
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -19,6 +20,7 @@ type Arguments =
             | Timeout _ -> "the extra time to wait after the main window has been created (in milliseconds)"
             | Keep_Aspect_Ratio -> "retain the aspect ratio of the original window"
             | Dodge_Taskbar -> "if the process cannot be fullscreened, also avoids placing it on top of the taskbar (in conjunction with -a)"
+            | Black_Bars -> "if the process cannot be fullscreened, create a black bar window behind it (in conjunction with -a)"
 
 [<EntryPoint>]
 let main argv =
@@ -28,5 +30,6 @@ let main argv =
     let timeout = parseResults.TryGetResult Timeout
     let keepAspectRatio = parseResults.Contains Keep_Aspect_Ratio
     let dodgeTaskbar = parseResults.Contains Dodge_Taskbar
-    Launcher.launch (List.head args) (List.tail args) timeout keepAspectRatio dodgeTaskbar
+    let blackBars = parseResults.Contains Black_Bars
+    Launcher.launch (List.head args) (List.tail args) timeout keepAspectRatio dodgeTaskbar blackBars
     0

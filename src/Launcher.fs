@@ -4,6 +4,7 @@
 
 module BorderlessLauncher.Launcher
 
+open BorderlessLauncher.Window
 open System.Diagnostics
 open System.Runtime.InteropServices
 
@@ -99,7 +100,7 @@ let private getMonitorInfo window =
 #endif
     monitorInfo
 
-let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) =
+let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) (blackBars: bool) =
     use proc = Process.Start(processName, args)
     proc.WaitForInputIdle() |> ignore
     if timeout.IsSome then
@@ -109,7 +110,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     let monitorInfo = getMonitorInfo handle
     let monitorRect = monitorInfo.Monitor
     let monitorSize = monitorRect.Size
-    let mutable viewportSize = monitorSize
+    let mutable viewportRect = monitorRect
     let targetSize =
         if keepAspectRatio then
             let windowSize = getWindowRect handle |> _.Size
@@ -117,26 +118,49 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
                 monitorSize
             else
                 if dodgeTaskbar then
-                    viewportSize <- monitorInfo.WorkArea.Size
-                let c = windowSize.CrossMultiply viewportSize
+                    viewportRect <- monitorInfo.WorkArea
+                let c = windowSize.CrossMultiply viewportRect.Size
                 if c = 0 then
-                    viewportSize
+                    viewportRect.Size
                 else if c > 0 then
                     // Window is wider
-                    let width = viewportSize.Width
+                    let width = viewportRect.Width
                     let height = float windowSize.Height / float windowSize.Width * float width |> round |> int
                     { Width = width; Height = height }
                 else
                     // Window is narrower
-                    let height = viewportSize.Height
+                    let height = viewportRect.Height
                     let width = float windowSize.Width / float windowSize.Height * float height |> round |> int
                     { Width = width; Height = height }
         else
             monitorSize
-    let targetX = monitorRect.Left + (viewportSize.Width - targetSize.Width) / 2
-    let targetY = monitorRect.Top + (viewportSize.Height - targetSize.Height) / 2
+    let targetX = monitorRect.Left + (viewportRect.Width - targetSize.Width) / 2
+    let targetY = monitorRect.Top + (viewportRect.Height - targetSize.Height) / 2
 #if DEBUG
     printfn "Target pos (%d, %d), size: %A" targetX targetY targetSize
 #endif
+
+    if keepAspectRatio && blackBars && targetSize <> monitorSize then
+        let bbWindow = BlackBarWindow(
+            owner = typeof<Size>.Module,
+            title = "Letterboxing",
+            x = viewportRect.Left,
+            y = viewportRect.Right,
+            width = monitorSize.Width,
+            height = monitorSize.Height
+        )
+        let bbHandle = bbWindow.StartOffThread()
+        if bbHandle.HasValue then
+            Native.SetWindowPos(
+                bbHandle.Value,
+                Native.HWND_TOPMOST,
+                viewportRect.Left,
+                viewportRect.Top,
+                viewportRect.Width,
+                viewportRect.Height,
+                uint Native.SWP_DEFAULT)
+                |> ignore
+            Native.SetWindowLongPtrW(bbHandle.Value, Native.GWL_STYLE, int64 Native.WS_DEFAULT) |> ignore
+
     Native.SetWindowPos(handle, Native.HWND_TOPMOST, targetX, targetY, targetSize.Width, targetSize.Height, uint Native.SWP_DEFAULT) |> ignore
     Native.SetWindowLongPtrW(handle, Native.GWL_STYLE, int64 Native.WS_DEFAULT) |> ignore
