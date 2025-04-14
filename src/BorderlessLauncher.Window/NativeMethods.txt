@@ -13,7 +13,10 @@ FillRect
 EndPaint
 DefWindowProc
 CW_USEDEFAULT
-WM_*
+WM_PAINT
+WM_CLOSE
+WM_DESTROY
+WM_ACTIVATE
 CreateSolidBrush
 
 // Making windows borderless
@@ -22,5 +25,5 @@ GetMonitorInfo
 GetWindowRect
 SetWindowPos
 SetWindowLongPtr
-HWND_*
+HWND_TOP
 SetForegroundWindow
