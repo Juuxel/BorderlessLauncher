@@ -86,6 +86,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
                 viewportRect.Top,
                 viewportRect.Width,
                 viewportRect.Height)
+            bbWindow.GainedFocusEvent.Add (fun _ -> BorderlessWindows.SetActive handle)
 
     BorderlessWindows.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
     BorderlessWindows.SetActive handle

@@ -21,6 +21,8 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
 
     private IntPtr? windowHandle = null;
 
+    public event EventHandler? GainedFocusEvent;
+
     public IntPtr? StartOffThread()
     {
         var evt = new AutoResetEvent(false);
@@ -75,6 +77,9 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
                 return new LRESULT(0);
             case PInvoke.WM_DESTROY:
                 PInvoke.PostQuitMessage(0);
+                return new LRESULT(0);
+            case PInvoke.WM_ACTIVATE:
+                GainedFocusEvent?.Invoke(this, EventArgs.Empty);
                 return new LRESULT(0);
             default:
                 return PInvoke.DefWindowProc(hWnd, msg, wParam, lParam);
