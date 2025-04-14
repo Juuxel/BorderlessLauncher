@@ -17,7 +17,7 @@ Options:
   There will be empty space around the window if the original window has a different aspect ratio.
 - ~-d~, ~--dodge-taskbar~: If ~-a~ is specified, will not overlap the taskbar unless the aspect ratio matches
   (in which case, Windows will automatically hide it).
-- ~-b~, ~~--letterboxing~~: If ~-a~ is specified, creates a black bar/letterboxing window behind the original window.
+- ~-b~, ~--letterboxing~: If ~-a~ is specified, creates a black bar/letterboxing window behind the original window.
 - ~-t <delay>~: Waits ~<delay>~ milliseconds after the original window has been created until resizing it.
 
 ** Build instructions
