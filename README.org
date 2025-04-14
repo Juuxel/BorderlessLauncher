@@ -25,4 +25,4 @@ Options:
 Requirements: Windows 10 or newer, .NET 9 or newer
 
 Run ~dotnet build --configuration Release~.
-The compiled binaries will be stored in ~src/bin/Release~.
+The compiled binaries will be stored in ~src/BorderlessLauncher/bin/Release~.

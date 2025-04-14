@@ -4,8 +4,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/src/">
-    <Project Path="src/BorderlessLauncher.fsproj" />
-  </Folder>
-  <Project Path="BorderlessLauncher.Window/BorderlessLauncher.Window.csproj" />
+  <Project Path="src/BorderlessLauncher/BorderlessLauncher.fsproj" />
+  <Project Path="src/BorderlessLauncher.Window/BorderlessLauncher.Window.csproj" />
 </Solution>
