@@ -23,3 +23,4 @@ GetWindowRect
 SetWindowPos
 SetWindowLongPtr
 HWND_*
+SetForegroundWindow

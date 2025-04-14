@@ -88,6 +88,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
                 viewportRect.Height)
 
     BorderlessWindows.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
+    BorderlessWindows.SetActive handle
 
     if bbWindowOpt.IsSome then
         proc.WaitForExit()

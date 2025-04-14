@@ -35,6 +35,11 @@ public static class BorderlessWindows
         PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE, (int) BorderlessStyle);
     }
 
+    public static void SetActive(IntPtr window)
+    {
+        PInvoke.SetForegroundWindow((HWND) window);
+    }
+
     public static Rect GetWindowRect(IntPtr window)
     {
         unsafe
