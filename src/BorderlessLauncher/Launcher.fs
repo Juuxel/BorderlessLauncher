@@ -41,13 +41,13 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         System.Threading.Thread.Sleep timeout.Value
 
     let handle = proc.MainWindowHandle
-    let monitorInfo = BorderlessWindows.GetMonitorInfo handle
+    let monitorInfo = WindowUtil.GetMonitorInfo handle
     let monitorRect = monitorInfo.Monitor
     let monitorSize = monitorRect.Size
     let mutable viewportRect = monitorRect
     let targetSize =
         if keepAspectRatio then
-            let windowSize = BorderlessWindows.GetWindowRect handle |> _.Size
+            let windowSize = WindowUtil.GetWindowRect handle |> _.Size
             if windowSize.HasSameAspectRatio monitorSize then
                 monitorSize
             else
@@ -88,17 +88,17 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         let bbHandle = bbWindow.StartOffThread()
         if bbHandle.HasValue then
             bbWindowOpt <- Some bbWindow
-            BorderlessWindows.SetBorderless(
+            WindowUtil.SetBorderless(
                 bbHandle.Value,
                 System.Nullable(),
                 viewportRect.Left,
                 viewportRect.Top,
                 viewportRect.Width,
                 viewportRect.Height)
-            bbWindow.GainedFocusEvent.Add (fun _ -> BorderlessWindows.SetActive handle)
+            bbWindow.GainedFocusEvent.Add (fun _ -> WindowUtil.SetActive handle)
 
-    BorderlessWindows.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
-    BorderlessWindows.SetActive handle
+    WindowUtil.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
+    WindowUtil.SetActive handle
 
     if bbWindowOpt.IsSome then
         proc.WaitForExit()

@@ -46,7 +46,7 @@ public sealed class BlackBarWindow(System.Reflection.Module owner, string title,
     {
         var hInstance = new HINSTANCE(System.Runtime.InteropServices.Marshal.GetHINSTANCE(owner));
         RegisterClass(hInstance, new WNDPROC(WindowProcedure));
-        var hWnd = CreateWindow(title, BorderlessWindows.BorderlessStyle, x, y, width, height, hInstance);
+        var hWnd = CreateWindow(title, WindowUtil.BorderlessStyle, x, y, width, height, hInstance);
         if (hWnd == HWND.Null) return null;
         PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_NORMAL);
         return hWnd;
