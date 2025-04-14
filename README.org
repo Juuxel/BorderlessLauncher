@@ -1,0 +1,27 @@
+* Borderless Launcher
+
+Launches a windowed application and resizes it to a borderless window.
+Borderless Launcher can optionally keep the aspect ratio of the original window intact,
+which can be useful for e.g. 4:3 games on 16:9 screens.
+
+** Usage
+
+#+BEGIN_SRC cmd
+BorderlessLauncher.exe [-a] [-d] [-t <delay>] <args>...
+#+END_SRC
+
+The ~<args>...~ will be the program to launch and its command line arguments.
+
+Options:
+- ~-a~, ~--keep-aspect-ratio~: Retain the aspect ratio of the original window.
+  There will be empty space around the window if the original window has a different aspect ratio.
+- ~-d~, ~--dodge-taskbar~: If ~-a~ is specified, will not overlap the taskbar unless the aspect ratio matches
+  (in which case, Windows will automatically hide it).
+- ~-t <delay>~: Waits ~<delay>~ milliseconds after the original window has been created until resizing it.
+
+** Build instructions
+
+Requirements: Windows 10 or newer, .NET 9 or newer
+
+Run ~dotnet build --configuration Release~.
+The compiled binaries will be stored in ~src/bin/Release~.
