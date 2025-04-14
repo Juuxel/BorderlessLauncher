@@ -13,6 +13,9 @@ type Size =
     member self.CrossMultiply other =
         self.Width * other.Height - self.Height * other.Width
 
+    member self.HasSameAspectRatio other =
+        self.CrossMultiply other = 0
+
 [<Struct>]
 [<StructLayout(LayoutKind.Sequential)>]
 type Rect =
@@ -106,34 +109,30 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     let monitorInfo = getMonitorInfo handle
     let monitorRect = monitorInfo.Monitor
     let monitorSize = monitorRect.Size
-    let targetSize, viewportSize =
+    let mutable viewportSize = monitorSize
+    let targetSize =
         if keepAspectRatio then
             let windowSize = getWindowRect handle |> _.Size
-            let c = windowSize.CrossMultiply monitorSize
-            if c = 0 then
-                // Same aspect ratio
-                monitorSize, monitorSize
+            if windowSize.HasSameAspectRatio monitorSize then
+                monitorSize
             else
-                let c, viewportSize =
-                    if dodgeTaskbar then
-                        let workAreaSize = monitorInfo.WorkArea.Size
-                        windowSize.CrossMultiply workAreaSize, workAreaSize
-                    else
-                        c, monitorSize
+                if dodgeTaskbar then
+                    viewportSize <- monitorInfo.WorkArea.Size
+                let c = windowSize.CrossMultiply viewportSize
                 if c = 0 then
-                    viewportSize, viewportSize
+                    viewportSize
                 else if c > 0 then
                     // Window is wider
                     let width = viewportSize.Width
                     let height = float windowSize.Height / float windowSize.Width * float width |> round |> int
-                    { Width = width; Height = height }, viewportSize
+                    { Width = width; Height = height }
                 else
                     // Window is narrower
                     let height = viewportSize.Height
                     let width = float windowSize.Width / float windowSize.Height * float height |> round |> int
-                    { Width = width; Height = height }, viewportSize
+                    { Width = width; Height = height }
         else
-            monitorSize, monitorSize
+            monitorSize
     let targetX = monitorRect.Left + (viewportSize.Width - targetSize.Width) / 2
     let targetY = monitorRect.Top + (viewportSize.Height - targetSize.Height) / 2
 #if DEBUG
