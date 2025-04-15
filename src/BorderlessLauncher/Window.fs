@@ -76,7 +76,7 @@ let setBorderless (window: nativeint) (nextWindow: nativeint option) x y width h
 let setForegroundWindow (window: nativeint) =
     PInvoke.SetForegroundWindow (HWND window) |> ignore
 
-let inline private useCharPtr str ([<InlineIfLambda>] f: nativeptr<char> -> 'a) =
+let private useCharPtr str (f: nativeptr<char> -> 'a) =
     InteropUtil.WithCharPtr(str, f)
 
 type BlackBarWindow(owner, title, x, y, width, height) =
