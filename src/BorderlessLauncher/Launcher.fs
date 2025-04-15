@@ -69,9 +69,9 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
             owner = typeof<Size>.Module,
             title = "Letterboxing",
             x = viewportRect.Left,
-            y = viewportRect.Right,
-            width = monitorSize.Width,
-            height = monitorSize.Height
+            y = viewportRect.Top,
+            width = viewportRect.Width,
+            height = viewportRect.Height
         )
         let bbHandle = bbWindow.StartOffThread()
         if bbHandle.IsSome then
