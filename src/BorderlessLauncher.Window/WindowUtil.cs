@@ -4,9 +4,18 @@
 
 namespace BorderlessLauncher.Window;
 
-using Windows.Win32.UI.WindowsAndMessaging;
-
 public static class WindowUtil
 {
-    internal const WINDOW_STYLE BorderlessStyle = WINDOW_STYLE.WS_VISIBLE | WINDOW_STYLE.WS_CLIPCHILDREN;
+    public unsafe delegate T CharPtrFunc<T>(char* ptr);
+
+    public static T WithCharPtr<T>(string str, CharPtrFunc<T> func)
+    {
+        unsafe
+        {
+            fixed (char* ptr = str)
+            {
+                return func.Invoke(ptr);
+            }
+        }
+    }
 }

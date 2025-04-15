@@ -5,7 +5,7 @@
 module BorderlessLauncher.Main
 
 open Argu
-open BorderlessLauncher.Window2
+open BorderlessLauncher.Window
 
 type Arguments =
     | [<MainCommand; ExactlyOnce; Last>] Process of args: string list

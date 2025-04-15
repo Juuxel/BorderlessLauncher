@@ -4,7 +4,7 @@
 
 module BorderlessLauncher.Launcher
 
-open BorderlessLauncher.Window2
+open BorderlessLauncher.Window
 open System.Diagnostics
 
 type Size =
@@ -80,10 +80,10 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     printfn "Target pos (%d, %d), size: %A" targetX targetY targetSize
 #endif
 
-    let mutable bbWindowOpt: Window.BlackBarWindow option = None
+    let mutable bbWindowOpt: BlackBarWindow option = None
 
     if keepAspectRatio && blackBars && targetSize <> monitorSize then
-        let bbWindow = Window.BlackBarWindow(
+        let bbWindow = BlackBarWindow(
             owner = typeof<Size>.Module,
             title = "Letterboxing",
             x = viewportRect.Left,
@@ -92,7 +92,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
             height = monitorSize.Height
         )
         let bbHandle = bbWindow.StartOffThread()
-        if bbHandle.HasValue then
+        if bbHandle.IsSome then
             bbWindowOpt <- Some bbWindow
             setBorderless
                 bbHandle.Value
