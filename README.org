@@ -7,7 +7,7 @@ which can be useful for e.g. 4:3 games on 16:9 screens.
 ** Usage
 
 #+BEGIN_SRC cmd
-BorderlessLauncher.exe [-a] [-d] [-b] [-t <delay>] <args>...
+BorderlessLauncher.exe [-a] [-d] [-b] [-t <delay>] [-c] [-o] <args>...
 #+END_SRC
 
 The ~<args>...~ will be the program to launch and its command line arguments.
@@ -21,6 +21,8 @@ Options:
 - ~-t <delay>~: Waits ~<delay>~ milliseconds after the original window has been created until resizing it.
 - ~-c~, ~--attach~: Attaches to an existing process instead of creating a new one. Only the file name of the first arg
   will be considered, and the rest of the arguments will be ignored.
+- ~-o~, ~--always-on-top~: Keeps the game window always on top of other apps. This hides the taskbar.
+  If ~-b~ is specified, also applies to the black bar window.
 
 ** Build instructions
 

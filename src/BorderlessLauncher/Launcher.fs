@@ -7,6 +7,13 @@ module BorderlessLauncher.Launcher
 open BorderlessLauncher.Window
 open System.Diagnostics
 
+type WindowOptions =
+    { KeepAspectRatio: bool
+      DodgeTaskbar: bool
+      Letterboxing: bool
+      Attach: bool
+      AlwaysOnTop: bool }
+
 let createOrAttach (processName: string) (args: string list) attach =
     if attach then
         let processName = System.IO.Path.GetFileNameWithoutExtension processName
@@ -22,8 +29,8 @@ let createOrAttach (processName: string) (args: string list) attach =
         startInfo.WorkingDirectory <- System.Environment.CurrentDirectory
         Process.Start startInfo |> nonNull
 
-let launch (processName: string) (args: string list) (timeout: int option) (keepAspectRatio: bool) (dodgeTaskbar: bool) (blackBars: bool) (attach: bool) =
-    use proc = createOrAttach processName args attach
+let launch (processName: string) (args: string list) (timeout: int option) (options: WindowOptions) =
+    use proc = createOrAttach processName args options.Attach
     proc.WaitForInputIdle() |> ignore
     if timeout.IsSome then
         System.Threading.Thread.Sleep timeout.Value
@@ -34,12 +41,12 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     let monitorSize = monitorRect.Size
     let mutable viewportRect = monitorRect
     let targetSize =
-        if keepAspectRatio then
+        if options.KeepAspectRatio then
             let windowSize = Rect.ofWindow handle |> _.Size
             if windowSize.HasSameAspectRatio monitorSize then
                 monitorSize
             else
-                if dodgeTaskbar then
+                if options.DodgeTaskbar then
                     viewportRect <- monitorInfo.WorkArea
                 let c = windowSize.CrossMultiply viewportRect.Size
                 if c = 0 then
@@ -64,7 +71,7 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
 
     let mutable bbWindowOpt: BlackBarWindow option = None
 
-    if keepAspectRatio && blackBars && targetSize <> monitorSize then
+    if options.KeepAspectRatio && options.Letterboxing && targetSize <> monitorSize then
         let bbWindow = BlackBarWindow(
             owner = typeof<Size>.Module,
             title = "Letterboxing",
@@ -83,9 +90,10 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
                 viewportRect.Top
                 viewportRect.Width
                 viewportRect.Height
+                options.AlwaysOnTop
             bbWindow.GainedFocusEvent.Add (fun _ -> setForegroundWindow handle)
 
-    setBorderless handle None targetX targetY targetSize.Width targetSize.Height
+    setBorderless handle None targetX targetY targetSize.Width targetSize.Height options.AlwaysOnTop
     setForegroundWindow handle
 
     if bbWindowOpt.IsSome then

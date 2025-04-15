@@ -26,6 +26,7 @@ GetWindowRect
 SetWindowPos
 SetWindowLongPtr
 HWND_TOP
+HWND_TOPMOST
 SetForegroundWindow
 
 // Other native methods

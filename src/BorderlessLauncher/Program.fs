@@ -14,6 +14,7 @@ type Arguments =
     | [<AltCommandLine("-d")>] Dodge_Taskbar
     | [<AltCommandLine("-b")>] Letterboxing
     | [<AltCommandLine("-c")>] Attach
+    | [<AltCommandLine("-o")>] Always_On_Top
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -24,6 +25,7 @@ type Arguments =
             | Dodge_Taskbar -> "if the process cannot be fullscreened, also avoids placing it on top of the taskbar (in conjunction with -a)"
             | Letterboxing -> "if the process cannot be fullscreened, create a black bar window behind it (in conjunction with -a)"
             | Attach -> "attach onto an existing process; the process arguments will be ignored"
+            | Always_On_Top -> "keep the game window (and black bar window) always on top of other apps; hides the taskbar"
 
 type Exiter() =
     interface IExiter with
@@ -39,9 +41,11 @@ let main argv =
     let parseResults = parser.ParseCommandLine argv
     let args = parseResults.GetResult Process
     let timeout = parseResults.TryGetResult Timeout
-    let keepAspectRatio = parseResults.Contains Keep_Aspect_Ratio
-    let dodgeTaskbar = parseResults.Contains Dodge_Taskbar
-    let blackBars = parseResults.Contains Letterboxing
-    let attach = parseResults.Contains Attach
-    Launcher.launch (List.head args) (List.tail args) timeout keepAspectRatio dodgeTaskbar blackBars attach
+    let options: Launcher.WindowOptions =
+        { KeepAspectRatio = parseResults.Contains Keep_Aspect_Ratio
+          DodgeTaskbar = parseResults.Contains Dodge_Taskbar
+          Letterboxing = parseResults.Contains Letterboxing
+          Attach = parseResults.Contains Attach
+          AlwaysOnTop = parseResults.Contains Always_On_Top }
+    Launcher.launch (List.head args) (List.tail args) timeout options
     0

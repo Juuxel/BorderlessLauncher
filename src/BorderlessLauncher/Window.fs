@@ -63,12 +63,12 @@ let showErrorMessageBox (text: string) (title: string option) =
     let style = MESSAGEBOX_STYLE.MB_ICONERROR ||| MESSAGEBOX_STYLE.MB_OK
     PInvoke.MessageBox(HWND.Null, text, Option.toObj title, style) |> ignore
 
-let setBorderless (window: nativeint) (nextWindow: nativeint option) x y width height =
+let setBorderless (window: nativeint) (nextWindow: nativeint option) x y width height topmost =
     let hWnd = HWND window
     let hInsertAfter =
         match nextWindow with
         | Some handle -> HWND handle
-        | None -> HWND.HWND_TOP
+        | None -> if topmost then HWND.HWND_TOPMOST else HWND.HWND_TOP
     PInvoke.SetWindowPos(hWnd, hInsertAfter, x, y, width, height, SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED) |> ignore
     PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE, nativeint borderlessStyle) |> ignore
 
