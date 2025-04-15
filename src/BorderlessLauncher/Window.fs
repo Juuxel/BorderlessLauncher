@@ -4,6 +4,7 @@
 
 module BorderlessLauncher.Window
 
+open BorderlessLauncher.Interop
 open System.Threading
 open Windows.Win32
 open Windows.Win32.Foundation
@@ -61,7 +62,7 @@ let setForegroundWindow (window: nativeint) =
     PInvoke.SetForegroundWindow (HWND window) |> ignore
 
 let inline private useCharPtr str ([<InlineIfLambda>] f: nativeptr<char> -> 'a) =
-    Window.WindowUtil.WithCharPtr(str, f)
+    InteropUtil.WithCharPtr(str, f)
 
 type BlackBarWindow(owner, title, x, y, width, height) =
     static let className = "BorderlessLauncher.Window.BlackBarWindow"

@@ -5,5 +5,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="src/BorderlessLauncher/BorderlessLauncher.fsproj" />
-  <Project Path="src/BorderlessLauncher.Window/BorderlessLauncher.Window.csproj" />
+  <Project Path="src/BorderlessLauncher.Interop/BorderlessLauncher.Interop.csproj" />
 </Solution>
