@@ -7,24 +7,6 @@ module BorderlessLauncher.Launcher
 open BorderlessLauncher.Window
 open System.Diagnostics
 
-type Size =
-    { Width: int
-      Height: int }
-    member self.CrossMultiply other =
-        self.Width * other.Height - self.Height * other.Width
-
-    member self.HasSameAspectRatio other =
-        self.CrossMultiply other = 0
-
-type Rect with
-    member rect.Width = rect.Right - rect.Left
-
-    member rect.Height = rect.Bottom - rect.Top
-
-    member rect.Size =
-        { Width = rect.Width
-          Height = rect.Height }
-
 let createOrAttach (processName: string) (args: string list) attach =
     if attach then
         let processName = System.IO.Path.GetFileNameWithoutExtension processName

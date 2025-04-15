@@ -11,13 +11,26 @@ open Windows.Win32.Foundation
 open Windows.Win32.Graphics.Gdi
 open Windows.Win32.UI.WindowsAndMessaging
 
-let borderlessStyle = WINDOW_STYLE.WS_VISIBLE ||| WINDOW_STYLE.WS_CLIPCHILDREN
+type Size =
+    { Width: int
+      Height: int }
+    member self.CrossMultiply other =
+        self.Width * other.Height - self.Height * other.Width
+
+    member self.HasSameAspectRatio other =
+        self.CrossMultiply other = 0
 
 type Rect =
     { Left: int
       Top: int
       Right: int
       Bottom: int }
+    member this.Width = this.Right - this.Left
+    member this.Height = this.Bottom - this.Top
+    member this.Size =
+        { Width = this.Width
+          Height = this.Height }
+
 module Rect =
     let ofNative (rect: RECT) =
         { Left = rect.left
@@ -44,6 +57,8 @@ module MonitorInfo =
         monitorInfo.cbSize <- uint sizeof<MONITORINFO>
         PInvoke.GetMonitorInfo(monitor, &monitorInfo) |> ignore
         ofNative monitorInfo
+
+let private borderlessStyle = WINDOW_STYLE.WS_VISIBLE ||| WINDOW_STYLE.WS_CLIPCHILDREN
 
 let showErrorMessageBox (text: string) (title: string option) =
     let style = MESSAGEBOX_STYLE.MB_ICONERROR ||| MESSAGEBOX_STYLE.MB_OK
