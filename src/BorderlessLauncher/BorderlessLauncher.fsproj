@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Window.fs" />
     <Compile Include="Launcher.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

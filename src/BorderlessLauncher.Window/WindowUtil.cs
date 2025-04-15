@@ -4,56 +4,9 @@
 
 namespace BorderlessLauncher.Window;
 
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 public static class WindowUtil
 {
     internal const WINDOW_STYLE BorderlessStyle = WINDOW_STYLE.WS_VISIBLE | WINDOW_STYLE.WS_CLIPCHILDREN;
-
-    public static MonitorInfo GetMonitorInfo(IntPtr window)
-    {
-        unsafe
-        {
-            var monitor = PInvoke.MonitorFromWindow((HWND) window, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
-            MONITORINFO monitorInfo = new()
-            {
-                cbSize = (uint) sizeof(MONITORINFO)
-            };
-            PInvoke.GetMonitorInfo(monitor, &monitorInfo);
-            return new MonitorInfo(new Rect(monitorInfo.rcMonitor), new Rect(monitorInfo.rcWork));
-        }
-    }
-
-    public static void SetBorderless(IntPtr window, IntPtr? nextWindow, int x, int y, int width, int height)
-    {
-        HWND hWnd = (HWND) window;
-        HWND hInsertAfter = nextWindow.HasValue ? (HWND) nextWindow.Value : HWND.HWND_TOP;
-        PInvoke.SetWindowPos(hWnd, hInsertAfter, x, y, width, height, SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED);
-        PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE, (int) BorderlessStyle);
-    }
-
-    public static void SetActive(IntPtr window)
-    {
-        PInvoke.SetForegroundWindow((HWND) window);
-    }
-
-    public static Rect GetWindowRect(IntPtr window)
-    {
-        unsafe
-        {
-            RECT rect = new();
-            PInvoke.GetWindowRect((HWND) window, &rect);
-            return new Rect(rect);
-        }
-    }
-
-    public static void ShowErrorMessageBox(string text, string? title)
-    {
-        PInvoke.MessageBox(HWND.Null, text, title, MESSAGEBOX_STYLE.MB_ICONERROR | MESSAGEBOX_STYLE.MB_OK);
-    }
-
-    public record MonitorInfo(Rect Monitor, Rect WorkArea);
 }

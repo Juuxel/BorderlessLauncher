@@ -5,7 +5,7 @@
 module BorderlessLauncher.Main
 
 open Argu
-open BorderlessLauncher.Window
+open BorderlessLauncher.Window2
 
 type Arguments =
     | [<MainCommand; ExactlyOnce; Last>] Process of args: string list
@@ -30,7 +30,7 @@ type Exiter() =
         member _.Name = "Exiter"
         member _.Exit(msg, errorCode) =
             eprintfn "%s" msg
-            WindowUtil.ShowErrorMessageBox(msg, null)
+            showErrorMessageBox msg None
             exit (int errorCode)
 
 [<EntryPoint>]

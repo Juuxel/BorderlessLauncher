@@ -4,7 +4,7 @@
 
 module BorderlessLauncher.Launcher
 
-open BorderlessLauncher.Window
+open BorderlessLauncher.Window2
 open System.Diagnostics
 
 type Size =
@@ -33,7 +33,7 @@ let createOrAttach (processName: string) (args: string list) attach =
         | Some proc -> proc
         | None ->
             let message = $"Could not find a process with name {processName}."
-            WindowUtil.ShowErrorMessageBox(message, null)
+            showErrorMessageBox message None
             failwith message
     else
         let startInfo = new ProcessStartInfo(processName, args)
@@ -47,13 +47,13 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         System.Threading.Thread.Sleep timeout.Value
 
     let handle = proc.MainWindowHandle
-    let monitorInfo = WindowUtil.GetMonitorInfo handle
+    let monitorInfo = MonitorInfo.get handle
     let monitorRect = monitorInfo.Monitor
     let monitorSize = monitorRect.Size
     let mutable viewportRect = monitorRect
     let targetSize =
         if keepAspectRatio then
-            let windowSize = WindowUtil.GetWindowRect handle |> _.Size
+            let windowSize = Rect.ofWindow handle |> _.Size
             if windowSize.HasSameAspectRatio monitorSize then
                 monitorSize
             else
@@ -80,10 +80,10 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
     printfn "Target pos (%d, %d), size: %A" targetX targetY targetSize
 #endif
 
-    let mutable bbWindowOpt: BlackBarWindow option = None
+    let mutable bbWindowOpt: Window.BlackBarWindow option = None
 
     if keepAspectRatio && blackBars && targetSize <> monitorSize then
-        let bbWindow = BlackBarWindow(
+        let bbWindow = Window.BlackBarWindow(
             owner = typeof<Size>.Module,
             title = "Letterboxing",
             x = viewportRect.Left,
@@ -94,17 +94,17 @@ let launch (processName: string) (args: string list) (timeout: int option) (keep
         let bbHandle = bbWindow.StartOffThread()
         if bbHandle.HasValue then
             bbWindowOpt <- Some bbWindow
-            WindowUtil.SetBorderless(
-                bbHandle.Value,
-                System.Nullable(),
-                viewportRect.Left,
-                viewportRect.Top,
-                viewportRect.Width,
-                viewportRect.Height)
-            bbWindow.GainedFocusEvent.Add (fun _ -> WindowUtil.SetActive handle)
+            setBorderless
+                bbHandle.Value
+                None
+                viewportRect.Left
+                viewportRect.Top
+                viewportRect.Width
+                viewportRect.Height
+            bbWindow.GainedFocusEvent.Add (fun _ -> setForegroundWindow handle)
 
-    WindowUtil.SetBorderless(handle, System.Nullable(), targetX, targetY, targetSize.Width, targetSize.Height)
-    WindowUtil.SetActive handle
+    setBorderless handle None targetX targetY targetSize.Width targetSize.Height
+    setForegroundWindow handle
 
     if bbWindowOpt.IsSome then
         proc.WaitForExit()
