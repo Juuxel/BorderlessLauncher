@@ -4,7 +4,6 @@
 
 module BorderlessLauncher.Window
 
-open BorderlessLauncher.Interop
 open System.Threading
 open Windows.Win32
 open Windows.Win32.Foundation
@@ -76,39 +75,33 @@ let setBorderless (window: nativeint) (nextWindow: nativeint option) x y width h
 let setForegroundWindow (window: nativeint) =
     PInvoke.SetForegroundWindow (HWND window) |> ignore
 
-let private useCharPtr str (f: nativeptr<char> -> 'a) =
-    InteropUtil.WithCharPtr(str, f)
-
 type BlackBarWindow(owner, title, x, y, width, height) =
     static let className = "BorderlessLauncher.Window.BlackBarWindow"
 
     static let registerClass hInstance windowProcedure =
-        let inner classNamePtr =
-            let mutable windowClass = WNDCLASSW()
-            windowClass.lpszClassName <- PCWSTR classNamePtr
-            windowClass.hInstance <- hInstance
-            windowClass.lpfnWndProc <- windowProcedure
-            PInvoke.RegisterClass &windowClass |> ignore
-        useCharPtr className inner
+        use classNamePtr = fixed &className.GetPinnableReference()
+        let mutable windowClass = WNDCLASSW()
+        windowClass.lpszClassName <- PCWSTR classNamePtr
+        windowClass.hInstance <- hInstance
+        windowClass.lpfnWndProc <- windowProcedure
+        PInvoke.RegisterClass &windowClass |> ignore
 
-    static let createWindow title style x y width height hInstance =
-        let inner classNamePtr titlePtr =
-            PInvoke.CreateWindowEx(
-                LanguagePrimitives.EnumOfValue 0u,
-                PCWSTR classNamePtr,
-                PCWSTR titlePtr,
-                style,
-                x,
-                y,
-                width,
-                height,
-                HWND.Null,
-                HMENU.Null,
-                hInstance
-            )
-        inner
-        |> useCharPtr className
-        |> useCharPtr title
+    static let createWindow (title: string) style x y width height hInstance =
+        use classNamePtr = fixed &className.GetPinnableReference()
+        use titlePtr = fixed &title.GetPinnableReference()
+        PInvoke.CreateWindowEx(
+            LanguagePrimitives.EnumOfValue 0u,
+            PCWSTR classNamePtr,
+            PCWSTR titlePtr,
+            style,
+            x,
+            y,
+            width,
+            height,
+            HWND.Null,
+            HMENU.Null,
+            hInstance
+        )
 
     let owner = owner
     let title = title
